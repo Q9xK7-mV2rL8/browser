@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101820">
+  <title>DuckDuckGo Browser</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #101820; color: #edf3f6; display: flex; flex-direction: column; }
+    header { padding: 18px 24px; display: flex; align-items: center; gap: 18px; border-bottom: 1px solid #28343e; background: #151f28; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; white-space: nowrap; letter-spacing: -.02em; }
+    .duck { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: #de5833; font-size: 19px; }
+    form { display: flex; flex: 1; max-width: 760px; margin: 0 auto; background: #202c36; border: 1px solid #34434f; border-radius: 12px; overflow: hidden; }
+    input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; padding: 12px 15px; font: inherit; }
+    input::placeholder { color: #91a0ab; }
+    button { border: 0; background: #de5833; color: white; padding: 0 19px; font: inherit; font-weight: 650; cursor: pointer; }
+    button:hover { background: #ee6841; }
+    main { flex: 1; display: flex; flex-direction: column; padding: 18px 24px 24px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; color: #aab8c1; font-size: 13px; }
+    .actions { display: flex; gap: 8px; }
+    .small { background: #202c36; border: 1px solid #34434f; border-radius: 8px; padding: 8px 11px; color: #d9e2e7; font-size: 13px; }
+    .small:hover { background: #2a3944; }
+    .frame-wrap { flex: 1; min-height: 420px; position: relative; overflow: hidden; border: 1px solid #34434f; border-radius: 14px; background: #fff; }
+    iframe { display: block; width: 100%; height: 100%; min-height: 420px; border: 0; background: #fff; }
+    .hint { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 24px); padding: 9px 13px; border: 1px solid #34434f; border-radius: 9px; background: #151f28ee; color: #d5e0e6; font-size: 12px; text-align: center; box-shadow: 0 5px 20px #0003; }
+    .hint a { color: #ff9978; }
+    @media (max-width: 620px) { header { padding: 13px; flex-wrap: wrap; gap: 12px; } form { order: 2; flex-basis: 100%; } main { padding: 13px; } .toolbar { align-items: flex-start; } .frame-wrap, iframe { min-height: 62vh; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand"><span class="duck" aria-hidden="true">🦆</span><span>DuckDuckGo Browser</span></div>
+    <form id="search" role="search">
+      <input id="query" type="search" placeholder="Search privately with DuckDuckGo" aria-label="Search DuckDuckGo" autocomplete="off">
+      <button type="submit">Search</button>
+    </form>
+  </header>
+  <main>
+    <div class="toolbar">
+      <span>Search results open in a new tab</span>
+      <div class="actions">
+        <button class="small" id="back" type="button" aria-label="Go back">← Back</button>
+        <button class="small" id="home" type="button">Home</button>
+        <button class="small" id="open" type="button">Open in new tab ↗</button>
+      </div>
+    </div>
+    <div class="frame-wrap">
+      <iframe id="browser" title="DuckDuckGo search" src="https://duckduckgo.com/" referrerpolicy="no-referrer"></iframe>
+      <div class="hint">DuckDuckGo blocks embedded browsing. Search above to open full results, or <a href="https://duckduckgo.com/" target="_blank" rel="noopener noreferrer">open DuckDuckGo</a>.</div>
+    </div>
+  </main>
+  <script>
+    const frame = document.querySelector('#browser');
+    const input = document.querySelector('#query');
+    const searchUrl = value => `https://duckduckgo.com/?q=${encodeURIComponent(value)}`;
+    document.querySelector('#search').addEventListener('submit', event => {
+      event.preventDefault();
+      const query = input.value.trim();
+      if (query) window.open(searchUrl(query), '_blank', 'noopener,noreferrer');
+    });
+    document.querySelector('#home').addEventListener('click', () => { input.value = ''; frame.src = 'https://duckduckgo.com/'; });
+    document.querySelector('#back').addEventListener('click', () => {
+      try { frame.contentWindow.history.back(); } catch { /* Cross-origin frames may not expose browser history. */ }
+    });
+    document.querySelector('#open').addEventListener('click', () => window.open(frame.src === 'about:blank' ? 'https://duckduckgo.com/' : frame.src, '_blank', 'noopener,noreferrer'));
+  </script>
+</body>
+</html>
